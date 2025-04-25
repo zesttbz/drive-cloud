@@ -9,14 +9,14 @@ app = Flask(__name__)
 
 # Cấu hình Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive']
-SERVICE_ACCOUNT_FILE = 'credentials.json'  # OAuth 2.0 Service Account file
 
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-drive_service = build('drive', 'v3', credentials=credentials)
+# Lấy JSON từ biến môi trường
+service_account_info = json.loads(os.environ['GOOGLE_SERVICE_ACCOUNT'])
+credentials = service_account.Credentials.from_service_account_info(
+    service_account_info, scopes=SCOPES)
 
 # Folder Drive ID nếu bạn muốn upload vào 1 folder cụ thể (có thể để trống)
-PARENT_FOLDER_ID = None
+PARENT_FOLDER_ID = '1LpG8Nb29N2ZT-ozvI3jB6n-OhHgj3Goy'
 
 
 @app.route('/')
