@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drive Cloud Storage</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
+  <header class="w-full max-w-4xl mx-auto py-6 text-center">
+    <h1 class="text-4xl font-bold text-gray-800">Drive Cloud Storage</h1>
+    <p class="text-gray-600">Upload, download, and manage your files securely with Google Drive</p>
+  </header>
+
+  <main class="w-full max-w-4xl mx-auto">
+    <section class="bg-white p-6 rounded-xl shadow-md mb-6">
+      <h2 class="text-2xl font-semibold mb-4">Upload File</h2>
+      <form id="upload-form" class="flex flex-col space-y-4">
+        <input type="file" id="fileInput" class="border p-2 rounded" />
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Upload</button>
+      </form>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-2xl font-semibold mb-4">Your Files</h2>
+      <ul id="fileList" class="space-y-2">
+        <!-- Files will be listed here dynamically -->
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        alert('File uploaded successfully!');
+        loadFiles();
+      } else {
+        alert('Upload failed.');
+      }
+    });
+
+    async function loadFiles() {
+      const res = await fetch('/files');
+      const files = await res.json();
+      fileList.innerHTML = '';
+      files.forEach(file => {
+        const li = document.createElement('li');
+        li.className = 'p-2 bg-gray-50 rounded shadow flex justify-between items-center';
+        li.innerHTML = `
+          <span>${file.name}</span>
+          <div class="space-x-2">
+            <a href="/download/${file.id}" class="text-blue-500">Download</a>
+            <a href="/delete/${file.id}" class="text-red-500">Delete</a>
+          </div>
+        `;
+        fileList.appendChild(li);
+      });
+    }
+
+    // Initial load
+    loadFiles();
+  </script>
+</body>
+</html>
